@@ -1,1 +1,1 @@
-Vagrant set constraints
+Vagrant (Linux vms) set-up constraints

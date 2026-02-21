@@ -1,0 +1,66 @@
+net-plan yml-config:
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: true
+    enp0s8:
+      addresses:
+        - 192.168.56.71/24
+      nameservers:
+        addresses: [8.8.8.8,8.8.4.4]
+
+Test connectivity: 
+
+ping -c 3 192.168.56.11  # From Node1 to Node2
+ping -c 3 192.168.56.12  # From Node1 to Node3
+
+Firewall rules:
+# Default deny incoming, allow outgoing
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# Allow SSH between nodes
+sudo ufw allow from 192.168.56.0/24 to any port 22
+
+# Optional: Allow ICMP (ping)
+sudo ufw allow proto icmp ######(IGNORE)
+
+sudo iptables -I INPUT -p icmp --icmp-type echo-request -s 192.168.56.0/24 -j ACCEPT          @@@@@ (Use this, ensure stability.....see below)
+
+-I INPUT → insert at the top of the firewall rules
+
+-p icmp → protocol
+
+--icmp-type echo-request → only ping requests
+
+-s 192.168.56.0/24 → allow only your Host-Only subnet
+
+-j ACCEPT → accept packets
+
+Then save the rule permanently:
+
+sudo apt install iptables-persistent
+sudo netfilter-persistent save
+
+| Command                                | Purpose                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------- |
+| `sudo apt install iptables-persistent` | Install package to save iptables rules across reboots                     |
+| `sudo netfilter-persistent save`       | Save **current iptables rules** so they are applied automatically at boot |
+
+#### run command to confirm:
+
+fsie-node1@fsie-node1:~$ sudo iptables -L INPUT -n --line-numbers | grep '192.168.56'
+1    ACCEPT     icmp --  192.168.56.0/24      0.0.0.0/0            icmptype 8
+fsie-node1@fsie-node1:~$
+
+
+# Enable firewall
+sudo ufw enable
+sudo ufw status verbose
+
+
+
+

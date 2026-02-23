@@ -62,5 +62,23 @@ sudo ufw enable
 sudo ufw status verbose
 
 
+#############    Must know DevOps commands:
+
+ip a
+ip route
+ping
+ss
+dig
+curl
+tcpdump
+traceroute
+ip neigh
+
+
+Famous three:
+
+ip -br a
+ip route
+ping -c 3 <nodes>
 
 
